@@ -17,12 +17,13 @@ namespace AssignmentIntern.View
     public class DTOManager
     {
         public static async System.Threading.Tasks.Task SendMail(string department,string subject,string content) {
+            //project is published on github and because of that apiKey and email are hidden
             try
             {
                 ISession s = Middleware.GetSession();
-                string apiKey = "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";
+                string apiKey = "//";
                 var client = new SendGridClient(apiKey);
-                var senderEmail = new EmailAddress("jelenamilenkovic@sendgrid.com", "Verified Sender email");
+                var senderEmail = new EmailAddress("//", "Verified Sender email");
                 string emailSubject = subject; ;
                 string htmlContent = "<strong>Example for internship</strong>";
                 string textContent = content;
@@ -40,7 +41,7 @@ namespace AssignmentIntern.View
             }
             catch(Exception ec)
             {
-
+                MessageBox.Show(ec.Message);
             }
 
         }
@@ -63,6 +64,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
+                MessageBox.Show(ec.Message);
             }
 
             return departments;
@@ -83,6 +85,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
+                MessageBox.Show(ec.Message);
             }
 
             return department;
@@ -106,7 +109,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
-                //handle exceptions
+                MessageBox.Show(ec.Message);
             }
         }
 
@@ -128,7 +131,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
-                //handle exceptions
+                MessageBox.Show(ec.Message);
             }
 
             return p;
@@ -148,7 +151,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
-                //handle exceptions
+                MessageBox.Show(ec.Message);
             }
         }
         public static List<string> NamesOfDepartments()
@@ -170,6 +173,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
+                MessageBox.Show(ec.Message);
             }
 
             return departments;
@@ -177,7 +181,7 @@ namespace AssignmentIntern.View
         ///////////////////////////////////////////////////////////////////////////////////////////
         // 5. Any additional meaningful statistics.
         ///////////////////////////////////////////////////////////////////////////////////////////
-        public static IList<object[]> statistic(string department)
+        public static IList<object[]> Statistic1(string department)
         {
             IList<object[]> result=new List<object[]>();
             
@@ -185,20 +189,36 @@ namespace AssignmentIntern.View
             {
                
                 ISession s = Middleware.GetSession();
-                IQuery q = s.CreateQuery("select d.country,d.city,sum(e.monthlysalary),count(e.department),sum(e.MonthlySalary*1.0)/(count(e.department)*1.0) from employee e "+"left join department d on d.id=e.department where d.departmentname='QA'"+" group by (d.city, d.country);");
-
+                IQuery q = s.CreateQuery("select d.country,d.city,sum(e.monthlysalary),count(e.department),sum(e.MonthlySalary*1.0)/(count(e.department)*1.0) from employee e "+"left join department d on d.id=e.department where d.departmentname=:depart"+" group by (d.city, d.country);");
+                q.SetString("depart", department);
                 result = q.List<object[]>();
                 s.Close();
             }
             catch (Exception ec)
             {
-                //handle exceptions
+                MessageBox.Show(ec.Message);
             } 
+            return result;
+        }
+        public static IList<object[]> Statistic2()
+        {
+            IList<object[]> result = new List<object[]>();
+            try
+            {
+                ISession s = Middleware.GetSession();
+                IQuery q = s.CreateQuery("select d.country,d.city,count(e.id) from department d inner join employee e on e.department=d.id group by (d.city,d.country);");
+                result = q.List<object[]>();
+                s.Close();
+            }
+            catch (Exception ec)
+            {
+                MessageBox.Show(ec.Message);
+            }
             return result;
         }
         #endregion
 
-        
+
         #region Employee
 
         ///////////////////////////////////////////////////////////////////////////////////////////
@@ -207,11 +227,17 @@ namespace AssignmentIntern.View
         public static List<EmployeeView> read5Employees()
         {
             List<EmployeeView> employees = new List<EmployeeView>();
+            var today = DateTime.Today;
+            var month = new DateTime(today.Year, today.Month - 1, 1);
+            var mon = month.Month;
+
             try
             { ISession s = Middleware.GetSession();
 
-                ISQLQuery q = s.CreateSQLQuery("SELECT b.* FROM Task a, Employee b where a.Assignee = b.id group by a.Assignee order by count(a.Assignee) desc limit 5;");
-                q.AddEntity(typeof(Employee));
+
+                ISQLQuery q = s.CreateSQLQuery("select email from employee  where ID IN (select b.id from Employee b inner join task a on a.assignee=b.id where extract(month from to_date(due_date,'dd-mm-yy'))=:monthnum group by b.id order by count(b.id) desc ) ;");
+                q.SetString("monthnum", mon.ToString());
+                q.SetMaxResults(5);
                 IList<Employee> allOfthem = q.List<Employee>();
                 foreach (AssignmentIntern.Models.Employee d in allOfthem)
                 {
@@ -223,6 +249,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
+                MessageBox.Show(ec.Message);
             }
 
             return employees;
@@ -248,6 +275,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
+                MessageBox.Show(ec.Message);
             }
 
             return employees;
@@ -265,6 +293,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
+                MessageBox.Show(ec.Message);
             }
 
             return empl;
@@ -291,7 +320,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
-                //handle exceptions
+                MessageBox.Show(ec.Message);
             }
         }
 
@@ -315,7 +344,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
-                //handle exceptions
+                MessageBox.Show(ec.Message);
             }
 
             return p;
@@ -335,7 +364,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
-                //handle exceptions
+                MessageBox.Show(ec.Message);
             }
         }
         #endregion
@@ -363,6 +392,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
+                MessageBox.Show(ec.Message);
             }
 
             return tasks;
@@ -380,6 +410,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
+                MessageBox.Show(ec.Message);
             }
 
             return empl;
@@ -405,7 +436,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
-                //handle exceptions
+                MessageBox.Show(ec.Message);
             }
         }
 
@@ -426,7 +457,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
-                //handle exceptions
+                MessageBox.Show(ec.Message);
             }
 
             return p;
@@ -446,7 +477,7 @@ namespace AssignmentIntern.View
             }
             catch (Exception ec)
             {
-                //handle exceptions
+                MessageBox.Show(ec.Message);
             }
         }
         #endregion

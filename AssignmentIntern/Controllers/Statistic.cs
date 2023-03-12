@@ -26,6 +26,17 @@ namespace AssignmentIntern.Controllers
                 comboBox1.Items.Add(k);
             }
             comboBox1.SelectedIndex = 1;
+
+            this.dataGridView2.Rows.Clear();
+            IList<object[]> podaci = DTOManager.Statistic2();
+
+            foreach (object[] p in podaci)
+            {
+                this.dataGridView2.Rows.Add(new string[] { (string)p[0], (string)p[1], (string)p[2] });
+
+            }
+            dataGridView2.ClearSelection();
+            dataGridView2.Refresh();
         }
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -35,7 +46,7 @@ namespace AssignmentIntern.Controllers
         private void button1_Click(object sender, EventArgs e)
         {
             this.dataGridView1.Rows.Clear();
-            IList<object[]> podaci = DTOManager.statistic("QA");
+            IList<object[]> podaci = DTOManager.Statistic1(comboBox1.SelectedItem.ToString());
 
             foreach (object[] p in podaci)
             {
